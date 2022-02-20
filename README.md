@@ -1,5 +1,12 @@
-cisc489-assn1
-Stock market chat bot for CISC489
+Kevin Bookwalter - kbookwal@udel.edu
+Aaron Gluck - gluck@udel.edu
 
-Kevin Bookwalter
-Aaron Gluck
+Assignment 1
+
+FILE DESCRIPTIONS:
+
+stock-chatter.py:
+    This is the main file of the program.
+
+
+NLP TOOLS USED:
