@@ -27,7 +27,9 @@ class QuestionClassifier():
         self.match_word = None
 
 
-    # Use this method to get the name of the entity a question is asking about
+    # Finds the name of the entity referred to in a question
+    # Works by finding the substring between 'did' and whatever rise/fall/open/close word is used
+    # Ex. Finds X in 'How much did X rise/fall/open at/close at?'
     def getEntity(self, q: str):
         entity = 'ENTITY NAME'
         if self.match_word != None:
