@@ -76,3 +76,5 @@ def questionTypeTest():
         print('\n')
 
     q_file.close()
+
+questionTypeTest()
