@@ -11,7 +11,6 @@ fall_words = get_syns(["fall", "drop", "dip", "decrease", "go_down"])
 open_words = get_syns(["open", "start", "begin"])
 close_words = get_syns(["close", "end", "finish"])
 
-
 class QuestionType(Enum):
     OR = 1          # Ex: Did IBM rise or fall?
     RISE = 2        # Ex: Did the Dow go up?
@@ -22,59 +21,86 @@ class QuestionType(Enum):
     AMT_CLOSE = 7   # Ex: How much did Tesla close at?
     UNKNOWN = 8     # Question didn't match any of the above types
 
-# Use this method to get the name of the entity a question is asking about
-def getEntity(q):
-    entity = "ENTITY NAME"
-    return entity
 
-# Takes a question in the form of a string as an input and returns a
-# tuple where the first item is the QuestionType and the second item
-# is the named entity in the question
-def classifyQuestion(q: str) -> tuple:
-    entity = getEntity(q)
-
-    # Make all letters lowercase for easier matching
-    q = q.lower()
-
-    # If a question contains 'or', it is
-    if re.match(".+( or ).+", q):
-        return QuestionType.OR, entity
-    
-    if re.match("\A(did).+", q):
-        if containsWords(rise_words, q):
-            return QuestionType.RISE, entity
-        if containsWords(fall_words, q):
-            return QuestionType.FALL, entity
-
-    if re.match("\A(how much|what|where).+", q):
-        if containsWords(open_words, q):
-            return QuestionType.AMT_OPEN, entity
-        if containsWords(close_words, q):
-            return QuestionType.AMT_CLOSE, entity
-        if containsWords(rise_words, q):
-            return QuestionType.AMT_RISE, entity
-        if containsWords(fall_words, q):
-            return QuestionType.AMT_FALL, entity
-
-    return QuestionType.UNKNOWN, entity
+class QuestionClassifier():
+    def __init__(self):
+        self.match_word = None
 
 
-# Checks if q contains any word in words. Returns true if so, false otherwise
-def containsWords(words: list, q: str):
-    for word in words:
-        if re.match(".+\s%s(\s.+|[?.]|\Z)" % word, q):
-            return True
-    
-    return False
+    # Use this method to get the name of the entity a question is asking about
+    def getEntity(self, q: str):
+        entity = 'ENTITY NAME'
+        if self.match_word != None:
+            start = q.index('did') + 4
+            end = q.index(self.match_word) - 1
+            entity = q[start:end]
+        return entity
 
-def questionTypeTest():
-    q_file = open('Resources/assignment1-test-questions.txt', 'r')
 
-    for line in q_file:
-        print(line)
-        print(classifyQuestion(line))
-        print('\n')
 
-    q_file.close()
+    # # Takes a question in the form of a string as an input and returns a
+    # # tuple where the first item is the QuestionType and the second item
+    # # is the named entity in the question
 
-questionTypeTest()
+    def classifyQuestion(self, q: str) -> tuple:
+        entity = 'ENTITY NAME'
+        type = QuestionType.UNKNOWN
+
+        # Make all letters lowercase for easier matching
+        q = q.lower()
+
+        # If a question contains 'or', it is
+        if re.match(".+( or ).+", q):
+            type = QuestionType.OR
+            self.containsWords(rise_words + fall_words, q)
+        elif re.match("\A(did).+", q):
+            if self.containsWords(rise_words, q):
+                type = QuestionType.RISE
+            elif self.containsWords(fall_words, q):
+                type = QuestionType.FALL
+        elif re.match("\A(how much|what|where).+", q):
+            if self.containsWords(open_words, q):
+                type = QuestionType.AMT_OPEN
+            elif self.containsWords(close_words, q):
+                type = QuestionType.AMT_CLOSE
+            elif self.containsWords(rise_words, q):
+                type = QuestionType.AMT_RISE
+            elif self.containsWords(fall_words, q):
+                type = QuestionType.AMT_FALL
+
+        entity = self.getEntity(q)
+
+        return type, entity
+
+    # Checks if q contains any word in words. Returns true if so, false otherwise
+    def containsWords(self, words: list, q: str):
+        for word in words:
+            if re.match(".+\s%s(\s.+|[?.]|\Z)" % word, q):
+                self.match_word = word
+                return True
+
+        self.match_word = None
+        return False
+
+    def questionTypeTest(self):
+        q_file = open('Resources/assignment1-test-questions.txt', 'r')
+
+        for line in q_file:
+            print(line)
+            print(self.classifyQuestion(line))
+            print('\n')
+
+        q_file.close()
+
+    def entityTest(self):
+        file = open('Resources/assignment1-test-questions.txt', 'r')
+
+        for line in file:
+            e = self.getEntity(line)
+            # print(e + '\n')
+
+        file.close()
+        
+qc =  QuestionClassifier()
+qc.questionTypeTest()
+# entityTest()
