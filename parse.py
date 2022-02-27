@@ -4,7 +4,7 @@ from generate_synonyms import get_syns
 import re
 
 past_rise_words = get_syns(["went_up", "rose", "increased", "jumped", "ascended"])
-past_fall_words = get_syns(["fell", "dropped", "dipped", "decreased", "went_down"])
+past_fall_words = get_syns(["fell", "dropped", "dipped", "decreased", "down", "loss", "dive", 'lower'])
 past_open_words = get_syns(["opened", "started", "began"])
 past_close_words = get_syns(["closed", "ended", "finished"])
 
@@ -26,43 +26,43 @@ def parse(article1: str, article2: str, question: str) -> list:
     if(questionInfo[0] == 1):
         result = parseOr(sentences)
         if result:
-            return [str('%s %s.', questionInfo[1], result[1]), result[0]]
+            return [str('It %s.', result[1]), result[0]]
         else:
             return None
     elif(questionInfo[0] == 2):
         result = parsePolar(sentences, past_rise_words)
         if result:
-            return [str('%s rose.', questionInfo[1]), result]
+            return ['It rose.', result]
         else:
             return None
     elif(questionInfo[0] == 3):
         result = parsePolar(sentences, past_fall_words)
         if result:
-            return [str('%s fell.', questionInfo[1]), result]
+            return ['It fell.', result]
         else:
             return None
     elif(questionInfo[0] == 4):
         result = parseQuant(sentences, past_rise_words)
         if result:
-            return [str('%s rose %d.', questionInfo[1]), result]
+            return ['%d.', result]
         else:
             return None
     elif(questionInfo[0] == 5):
         result = parseQuant(sentences, past_fall_words)
         if result:
-            return [str('%s fell %d.', questionInfo[1]), result]
+            return ['%d.', result]
         else:
             return None
     elif(questionInfo[0] == 6):
         result = parseQuant(sentences, past_open_words)
         if result:
-            return [str('%s opened at %d.', questionInfo[1]), result]
+            return ['%d', result]
         else:
             return None
     elif(questionInfo[0] == 7):
         result = parseQuant(sentences, past_close_words)
         if result:
-            return [str('%s closed at %d.', questionInfo[1]), result]
+            return ['%d', result]
         else:
             return None
     else:
@@ -126,7 +126,7 @@ def parseQuant(sentences: str, words: list) -> list:
     foundSentence = 0
     for sentence in sentences:
         for word in words:
-            regex = word + r' [A-Za-z]? (\d+(\.\d+)?) ' # ex. '... rose( by) amount' or 'closed( at) amount'
+            regex = word + r'\s[A-Za-z]+?\s(\d+(?:\.\d+)?\s(?:\d/\d)?)' # ex. '... rose( by) amount' or 'closed( at) amount'
             match = re.search(regex, sentence.lower())
             if match:
                 matches.append([sentence, match.group()])
@@ -141,7 +141,7 @@ def parseQuant(sentences: str, words: list) -> list:
 
 
 # Finds and returns all sentences that contain a mention of the entity found in the question
-def getSentences(article1: str, article2: str, question: str):
+def getSentences(article1: str, article2: str, question: str) -> list:
     sentences = []
 
     for i in range(2):
