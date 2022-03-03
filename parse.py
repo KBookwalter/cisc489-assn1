@@ -3,8 +3,8 @@ from nltk.tokenize import word_tokenize
 from generate_synonyms import get_syns
 import re
 
-past_rise_words = get_syns(["went_up", "rose", "increased", "jumped", "ascended"])
-past_fall_words = get_syns(["fell", "dropped", "dipped", "decreased", "down", "loss", "dive", 'lower'])
+past_rise_words = get_syns(["went_up", "rose", "increased", "jumped", "ascended", "up"])
+past_fall_words = get_syns(["fell", "dropped", "dipped", "decreased", "down", "loss", "dive", "lower", "off"])
 past_open_words = get_syns(["opened", "started", "began"])
 past_close_words = get_syns(["closed", "ended", "finished"])
 
@@ -24,43 +24,43 @@ def parse(article1: str, article2: str, question: str) -> list:
     result = []
 
     if(questionInfo[0] == 1):
-        result = parseOr(sentences)
+        result = parseOr(sentences, questionInfo[1])
         if result:
             return [str('It %s.', result[1]), result[0]]
         else:
             return None
     elif(questionInfo[0] == 2):
-        result = parsePolar(sentences, past_rise_words)
+        result = parsePolar(sentences, past_rise_words, questionInfo[1])
         if result:
             return ['It rose.', result]
         else:
             return None
     elif(questionInfo[0] == 3):
-        result = parsePolar(sentences, past_fall_words)
+        result = parsePolar(sentences, past_fall_words, questionInfo[1])
         if result:
             return ['It fell.', result]
         else:
             return None
     elif(questionInfo[0] == 4):
-        result = parseQuant(sentences, past_rise_words)
+        result = parseQuant(sentences, past_rise_words, questionInfo[1])
         if result:
             return ['%d.', result]
         else:
             return None
     elif(questionInfo[0] == 5):
-        result = parseQuant(sentences, past_fall_words)
+        result = parseQuant(sentences, past_fall_words, questionInfo[1])
         if result:
             return ['%d.', result]
         else:
             return None
     elif(questionInfo[0] == 6):
-        result = parseQuant(sentences, past_open_words)
+        result = parseQuant(sentences, past_open_words, questionInfo[1])
         if result:
             return ['%d', result]
         else:
             return None
     elif(questionInfo[0] == 7):
-        result = parseQuant(sentences, past_close_words)
+        result = parseQuant(sentences, past_close_words, questionInfo[1])
         if result:
             return ['%d', result]
         else:
@@ -71,7 +71,7 @@ def parse(article1: str, article2: str, question: str) -> list:
 
 # Parses relevant sentences for answers to or-type questions
 # Returns any all sentences that contain answers as well as an indicator of whether the stock rose, fell, or both at differing times
-def parseOr(sentences: str) -> list:
+def parseOr(sentences: str, entityName: str) -> list:
     matches = []
     answer = 0
     words = [past_rise_words, past_fall_words]
@@ -79,7 +79,7 @@ def parseOr(sentences: str) -> list:
     for i in range(2):
         for sentence in sentences:
             for word in words[i]:
-                regex = r'.*' + word.lower() + r'.*'
+                regex = entityName + r'.*\s' + str(word).lower() + r'\s.*'
                 if re.match(regex, sentence.lower()):
                     matches.append(sentence)
                     if i == 0:
@@ -102,12 +102,12 @@ def parseOr(sentences: str) -> list:
 
 # Parses relevant sentences for answers to polar interrogative questions
 # Returns any/all sentences that countain answers
-def parsePolar(sentences: str, words: list) -> list:
+def parsePolar(sentences: str, words: list, entityName: str) -> list:
     matches = []
     foundSentence = 0
     for sentence in sentences:
         for word in words:
-            regex = r'.*' + word.lower() + r'.*'
+            regex = entityName + r'.*\s' + str(word).lower() + r'\s.*'
             if re.match(regex, sentence.lower()):
                 matches.append(sentence)
                 foundSentence == 1
@@ -121,12 +121,12 @@ def parsePolar(sentences: str, words: list) -> list:
 
 # Parses relevant sentences for answers to quantitative questions
 # Returns any/all sentences that contain answers as well as the quantity we are looking for
-def parseQuant(sentences: str, words: list) -> list:
+def parseQuant(sentences: str, words: list, entityName: str) -> list:
     matches = []
     foundSentence = 0
     for sentence in sentences:
         for word in words:
-            regex = word + r'\s[A-Za-z]+?\s(\d+(?:\.\d+)?\s(?:\d/\d)?)' # ex. '... rose( by) amount' or 'closed( at) amount'
+            regex = entityName.lower() + r'\s(?:\D{1,50})?\s' + str(word).lower() + r'\s(?:\D{1,15})?(\d+(?:\.\d+)?%?(?:\s\d/\d)?)[\s.,-]|' + entityName.lower() + r'\s(?:\D{1,125})?(\d+(?:\.\d+)?%?(?:\s\d/\d)?)(?:\D{1,15})?(\d+(?:\.\d+)?%)?(?:\D{1,15})?\s'+ str(word).lower()
             match = re.search(regex, sentence.lower())
             if match:
                 matches.append([sentence, match.group()])
@@ -157,7 +157,7 @@ def getSentences(article1: str, article2: str, question: str) -> list:
             lineText = line.strip()
             count += 1
             for term in terms:
-                regex = r'.*' + term.lower() + r'.*'
+                regex = r'.*\s' + term.lower() + r'\s.*'
                 if re.search(regex, lineText.lower()):
                     sentences.append((lineText, count, i + 1))
                     break
