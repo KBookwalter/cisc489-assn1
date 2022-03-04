@@ -12,11 +12,11 @@ qc = QuestionClassifier
 
 # Wrapper function for parsing
 # Returns output based on question type in list format
-def parse(article1: str, article2: str, question: str) -> list:
+def parse(article: str, question: str) -> list:
     questionInfo = qc.classifyQuestion(question)
 
     # Get all relevant sentences, if none exist, we know nothing about the entity from the articles
-    sentences = getSentences(article1, article2, question)
+    sentences = getSentences(article, question)
     if not sentences:
         return None
 
@@ -141,26 +141,21 @@ def parseQuant(sentences: str, words: list, entityName: str) -> list:
 
 
 # Finds and returns all sentences that contain a mention of the entity found in the question
-def getSentences(article1: str, article2: str, question: str) -> list:
+def getSentences(article: str, question: str) -> list:
     sentences = []
 
-    for i in range(2):
-        if i == 0:
-            article = article1
-        elif i == 1:
-            article = article2
-
-        terms = word_tokenize(question)
-        file = open(article, 'r')
-        count = 0
-        for line in file:
-            lineText = line.strip()
-            count += 1
-            for term in terms:
-                regex = r'.*\s' + term.lower() + r'\s.*'
-                if re.search(regex, lineText.lower()):
-                    sentences.append((lineText, count, i + 1))
-                    break
-        file.close()
+    terms = word_tokenize(question)
+    file = open(article, 'r')
+    count = 0
+    for line in file:
+        lineText = line.strip()
+        count += 1
+        for term in terms:
+            regex = r'.*\s' + term.lower() + r'\s.*'
+            if re.search(regex, lineText.lower()):
+                sentences.append((lineText, count))
+                break
+    file.close()
 
     return sentences
+    
