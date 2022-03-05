@@ -16,24 +16,28 @@ def runFromFile(article, filename):
     for line in file:
         result = parse(article, line.strip())
         if result:
-            print('Answer: %s\n', result[0])
+            print('Answer: %s\n' % result[0])
             for sentence in result[1]:
-                print('Source: Line %d: %s\n', sentence[1], sentence[0])
+                print('Source: Line %d: %s\n' % (sentence[1], sentence[0]))
         else:
             print('No information available.')
     file.close()
 
 def runFromConsole(article):
     userInput = ""
-    while userInput != 'quit':
+    while True:
         userInput = input('What would you like to know?\n')
+        if userInput.lower() == 'quit':
+            break
         result = parse(article, userInput)
         if result:
-            print('Answer: %s\n', result[0])
+            print('Answer: %s\n' % result[0])
             for sentence in result[1]:
-                print('Source: Line %d: %s\s', sentence[1], sentence[0])
+                print('Source: Line %d: %s\n' % (sentence[1], sentence[0]))
         else:
             print('No information available.\n')
+
+    print('Goodbye :)')
 
 
 if __name__ == "__main__":

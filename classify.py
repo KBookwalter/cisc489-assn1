@@ -54,23 +54,23 @@ class QuestionClassifier():
         # If a question contains 'or', it is
         if re.match(".+( or ).+", q):
             type = QuestionType.OR
-            self.containsWords(rise_words + fall_words, q)
+            self.containsWords(self, rise_words + fall_words, q)
         elif re.match("\A(did).+", q):
-            if self.containsWords(rise_words, q):
+            if self.containsWords(self, rise_words, q):
                 type = QuestionType.RISE
-            elif self.containsWords(fall_words, q):
+            elif self.containsWords(self, fall_words, q):
                 type = QuestionType.FALL
         elif re.match("\A(how much|what|where).+", q):
-            if self.containsWords(open_words, q):
+            if self.containsWords(self, open_words, q):
                 type = QuestionType.AMT_OPEN
-            elif self.containsWords(close_words, q):
+            elif self.containsWords(self, close_words, q):
                 type = QuestionType.AMT_CLOSE
-            elif self.containsWords(rise_words, q):
+            elif self.containsWords(self, rise_words, q):
                 type = QuestionType.AMT_RISE
-            elif self.containsWords(fall_words, q):
+            elif self.containsWords(self, fall_words, q):
                 type = QuestionType.AMT_FALL
 
-        entity = self.getEntity(q)
+        entity = self.getEntity(self, q)
 
         return type, entity
 
@@ -89,7 +89,7 @@ class QuestionClassifier():
 
         for line in q_file:
             print(line)
-            print(self.classifyQuestion(line))
+            print(self.classifyQuestion(self, line))
             print('\n')
 
         q_file.close()
@@ -98,11 +98,11 @@ class QuestionClassifier():
         file = open('Resources/assignment1-test-questions.txt', 'r')
 
         for line in file:
-            e = self.getEntity(line)
+            e = self.getEntity(self, line)
             # print(e + '\n')
 
         file.close()
         
-qc =  QuestionClassifier()
-qc.questionTypeTest()
+# qc =  QuestionClassifier()
+# qc.questionTypeTest()
 # entityTest()
