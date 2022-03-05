@@ -37,6 +37,7 @@ def parse(article: str, question: str) -> list:
     print('\n')
     for sentence in sentences:
         print(sentence[0])
+        print('\n')
     print('\n\n')
 
     result = []
@@ -62,25 +63,25 @@ def parse(article: str, question: str) -> list:
     elif(questionInfo[0] == QuestionType.AMT_RISE):
         result = parseQuant(sentences, rise_words, questionInfo[1])
         if result:
-            return ['%d.' % result]
+            return ['%s.' % result[0][1], [list(result[0][0])]]
         else:
             return None
     elif(questionInfo[0] == QuestionType.AMT_FALL):
         result = parseQuant(sentences, fall_words, questionInfo[1])
         if result:
-            return ['%d.' % result]
+            return ['%s.' % result[0][1], [list(result[0][0])]]
         else:
             return None
     elif(questionInfo[0] == QuestionType.AMT_OPEN):
         result = parseQuant(sentences, open_words, questionInfo[1])
         if result:
-            return ['%d' % result]
+            return ['%s.' % result[0][1], [list(result[0][0])]]
         else:
             return None
     elif(questionInfo[0] == QuestionType.AMT_CLOSE):
         result = parseQuant(sentences, close_words, questionInfo[1])
         if result:
-            return ['%d' % result]
+            return ['%s.' % result[0][1], [list(result[0][0])]]
         else:
             return None
     else:
@@ -97,7 +98,7 @@ def parseOr(sentences: str, entityName: str) -> list:
     for i in range(2):
         for sentence in sentences:
             for word in words[i]:
-                regex = entityName + r'.*\s' + str(word).lower() + r'\s.*'
+                regex = entityName + r'.{1,50}\s' + str(word).lower() + r'\s|' + str(word).lower() + r'.{1,15}' + entityName
                 # print(word)
                 if re.search(regex, sentence[0].lower()):
                     matches.append(sentence)
@@ -126,8 +127,10 @@ def parsePolar(sentences: str, words: list, entityName: str) -> list:
     foundSentence = 0
     for sentence in sentences:
         for word in words:
-            regex = entityName + r'.*\s' + str(word).lower() + r'\s.*'
+            regex = entityName + r'.{1,50}\s' + str(word).lower() + r'\s|' + str(word).lower() + r'.{1,15}' + entityName
             if re.search(regex, sentence[0].lower()):
+                print('\n\n')
+                print(word)
                 matches.append(sentence)
                 foundSentence = 1
                 break
@@ -145,14 +148,20 @@ def parseQuant(sentences: str, words: list, entityName: str) -> list:
     foundSentence = 0
     for sentence in sentences:
         for word in words:
-            regex = entityName.lower() + r'\s(?:\D{1,50})?\s' + str(word).lower() + r'\s(?:\D{1,15})?(\d+(?:\.\d+)?%?(?:\s\d/\d)?)[\s.,-]|' + entityName.lower() + r'\s(?:\D{1,125})?(\d+(?:\.\d+)?%?(?:\s\d/\d)?)(?:\D{1,15})?(\d+(?:\.\d+)?%)?(?:\D{1,15})?\s'+ str(word).lower()
+            # regex = entityName.lower() + r'\s(?:\D{1,50})?\s' + str(word).lower() + r'\s(?:\D{1,15})?(\d+(?:\.\d+)?%?(?:\s\d/\d)?)[\s.,-]|' + entityName.lower() + r'\s(?:\D{1,125})?(\d+(?:\.\d+)?%?(?:\s\d/\d)?)(?:\D{1,15})?(?:\d+(?:\.\d+)?%)?(?:\D{1,15})?\s'+ str(word).lower()
+            regex = entityName.lower() + r'(?:\s.{1,50})?\s' + str(word).lower() + r'\s(?:\D{1,15})?(\d+(?:\.\d+)?%?(?:\s\d/\d)?)[\s.,-]|' + entityName.lower() + r'\s(?:\D{1,125})?(\d+(?:\.\d+)?%?(?:\s\d/\d)?)(?:\D{1,15})?(?:\d+(?:\.\d+)?%)?(?:\D{1,15})?\s'+ str(word).lower()
             match = re.search(regex, sentence[0].lower())
             if match:
-                matches.append([sentence, match.group()])
+                if match.group(1):
+                    matches.append([sentence, match.group(1)])
+                else:
+                    matches.append([sentence, match.group(2)])
                 foundSentence = 1
                 break
     
     if foundSentence:
+        # for m in matches:
+        #     print(m)
         return matches
     else:
         return None
