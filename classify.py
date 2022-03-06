@@ -11,6 +11,19 @@ fall_words = get_syns(["fall", "drop", "dip", "decrease", "go_down"])
 open_words = get_syns(["open", "start", "begin"])
 close_words = get_syns(["close", "end", "finish"])
 
+entityNames = [
+    ['Dow Jones Transportation Average'],
+    ['Dow', 'Dow Jones Industrial Average', 'Dow Average', 'DJI', 'Dow Jones', 'Industrial Average', 'Industrials'],
+    ['S&P', 'S&P 500', 'Standard & Poor\'s', 'SP500'],
+    ['USAir', 'USAir Group', 'US Airlines', 'US Air Lines'],
+    [ 'United Air', 'United Airlines', 'United Air Lines', 'UAL', 'United'],
+    ['American Airlines', 'AMR', 'American Airlines'],
+    ['Delta Airlines', 'Delta Air Lines', 'Delta'],
+    ['Philip Morris', 'Philips Industries'],
+    ['IBM', 'International Business Machines']
+]
+
+
 class QuestionType(Enum):
     OR = 1          # Ex: Did IBM rise or fall?
     RISE = 2        # Ex: Did the Dow go up?
@@ -36,6 +49,18 @@ class QuestionClassifier():
             start = q.index('did') + 4
             end = q.index(self.match_word) - 1
             entity = q[start:end]
+            entity = re.sub(r'\b[Tt]he\s', r'', entity)
+            for e in entityNames:
+                found = 0
+                for syn in e:
+                    if entity == syn.lower():
+                        entity = e
+                        found = 1
+                        break
+                if found:
+                    break
+            if type(entity) != list:
+                entity = [entity]
         return entity
 
 
@@ -69,8 +94,9 @@ class QuestionClassifier():
                 type = QuestionType.AMT_RISE
             elif self.containsWords(self, fall_words, q):
                 type = QuestionType.AMT_FALL
-
-        entity = self.getEntity(self, q)
+        
+        if type != QuestionType.UNKNOWN:
+            entity = self.getEntity(self, q)
 
         return type, entity
 
