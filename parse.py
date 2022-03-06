@@ -66,28 +66,28 @@ def parse(article: str, question: str) -> list:
         else:
             return None
     elif(questionInfo[0] == QuestionType.AMT_RISE):
-        result = parseQuant(sentences, rise_words, questionInfo[1])
+        result = parseQuant(sentences, rise_words, questionInfo[1], questionInfo[0])
         if result:
             # return ['%s.' % result[0][1], [list(result[0][0])]]
             return ['QUANT_FLAG', result]
         else:
             return None
     elif(questionInfo[0] == QuestionType.AMT_FALL):
-        result = parseQuant(sentences, fall_words, questionInfo[1])
+        result = parseQuant(sentences, fall_words, questionInfo[1], questionInfo[0])
         if result:
             # return ['%s.' % result[0][1], [list(result[0][0])]]
             return ['QUANT_FLAG', result]
         else:
             return None
     elif(questionInfo[0] == QuestionType.AMT_OPEN):
-        result = parseQuant(sentences, open_words, questionInfo[1])
+        result = parseQuant(sentences, open_words, questionInfo[1], questionInfo[0])
         if result:
             # return ['%s.' % result[0][1], [list(result[0][0])]]
             return ['QUANT_FLAG', result]
         else:
             return None
     elif(questionInfo[0] == QuestionType.AMT_CLOSE):
-        result = parseQuant(sentences, close_words, questionInfo[1])
+        result = parseQuant(sentences, close_words, questionInfo[1], questionInfo[0])
         if result:
             # return ['%s.' % result[0][1], [list(result[0][0])]]
             return ['QUANT_FLAG', result]
@@ -152,14 +152,14 @@ def parsePolar(sentences: str, words: list, entityName: str) -> list:
 
 # Parses relevant sentences for answers to quantitative questions
 # Returns any/all sentences that contain answers as well as the quantity we are looking for
-def parseQuant(sentences: str, words: list, entityName: str) -> list:
+def parseQuant(sentences: str, words: list, entityName: str, type: QuestionType) -> list:
     matches = []
     foundSentence = 0
     for sentence in sentences:
         for word in words:
 
             regex=''
-            if words[0] == 'stopping point':
+            if type == QuestionType.AMT_CLOSE:
                 # print('\n\n\n\n')
                 # print('HERE')
                 # print('\n\n\n\n')
