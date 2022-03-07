@@ -23,7 +23,25 @@ EXPLANATION OF PROGRAM:
 This program takes questions either from the user or a file, classifies the question type, and determines the suject of the question.
 It then gets all sentences mentioning that entity and parses those sentences for a pattern consistent with a potential answer.
 
+
+SETUP:
+
+DEPENDENCY INSTALLATION INSTRUCTIONS:
+
+Install regex and nltk libraries
+    $pip install regex
+    $pip install nltk
+
+NLTK Downloads
+    1) Start python interpreter in the command line
+        $python
+    2) Import nltk
+        >>> import nltk
+    3) Download corpora
+        >>> nltk.dowload('wordnet')
+
+If there is any more data you need to install, it will tell you in the console
+
 NOTE:
 
-Please install the required packages found in Resources/requirements.txt
-You may also have to download some data associated with NLTK, please follow related command line instructions.
+Dependencies are listed in requirements.txt
