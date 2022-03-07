@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-my @cmd = ("python3", "starter-code.py");
+my @cmd = ("python3", "stock_chatter.py");
 
 my @args;
 if (defined ($ARGV[1])) {
