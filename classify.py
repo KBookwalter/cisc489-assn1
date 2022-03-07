@@ -1,16 +1,15 @@
 from enum import Enum
-import nltk
-from nltk.corpus import wordnet
-from nltk.tokenize import word_tokenize
-from nltk.tag import pos_tag
 import re
 from generate_synonyms import get_syns
 
+# Generate verb synonym lists based on common words of each question category
 rise_words = get_syns(["go_up", "rise", "increase", "jump", "ascend"])
 fall_words = get_syns(["fall", "drop", "dip", "decrease", "go_down"])
 open_words = get_syns(["open", "start", "begin"])
 close_words = get_syns(["close", "end", "finish"])
 
+
+# Common synonyms for certain company names
 entityNames = [
     ['Dow Jones Transportation Average'],
     ['Dow', 'Dow Jones Industrial Average', 'Dow Average', 'DJI', 'Dow Jones', 'Industrial Average', 'Industrials'],
@@ -23,7 +22,7 @@ entityNames = [
     ['IBM', 'International Business Machines']
 ]
 
-
+# Enumeration of possible question types
 class QuestionType(Enum):
     OR = 1          # Ex: Did IBM rise or fall?
     RISE = 2        # Ex: Did the Dow go up?
@@ -35,6 +34,10 @@ class QuestionType(Enum):
     UNKNOWN = 8     # Question didn't match any of the above types
 
 
+"""
+Class for classify questions
+Includes methods for finding entity name and determining the type of question being asked
+"""
 class QuestionClassifier():
     def __init__(self):
         self.match_word = None
@@ -66,7 +69,7 @@ class QuestionClassifier():
 
 
     # # Takes a question in the form of a string as an input and returns a
-    # # tuple where the first item is the QuestionType and the second item
+    # # tuple (QuestionType, String) where the first item is the QuestionType and the second item
     # # is the named entity in the question
 
     def classifyQuestion(self, q: str) -> tuple:
@@ -76,15 +79,17 @@ class QuestionClassifier():
         # Make all letters lowercase for easier matching
         q = q.lower()
 
-        # If a question contains 'or', it is
+        # If a question contains 'or', it is an or-type question
         if re.match(".+( or ).+", q):
             type = QuestionType.OR
             self.containsWords(self, rise_words + fall_words, q)
+        # Questions such as "Did X rise" and "Did X fall"
         elif re.match("\A(did).+", q):
             if self.containsWords(self, rise_words, q):
                 type = QuestionType.RISE
             elif self.containsWords(self, fall_words, q):
                 type = QuestionType.FALL
+        # Quantitative quesitons
         elif re.match("\A(how much|what|where).+", q):
             if self.containsWords(self, open_words, q):
                 type = QuestionType.AMT_OPEN
@@ -100,7 +105,7 @@ class QuestionClassifier():
 
         return type, entity
 
-    # Checks if q contains any word in words. Returns true if so, false otherwise
+    # Checks if question q (string) contains any word in list words (lists of rise/fall/etc. words). Returns true if so, false otherwise
     def containsWords(self, words: list, q: str):
         for word in words:
             if re.match(".+\s%s(\s.+|[?.]|\Z)" % word, q):
@@ -109,26 +114,3 @@ class QuestionClassifier():
 
         self.match_word = None
         return False
-
-    def questionTypeTest(self):
-        q_file = open('Resources/assignment1-test-questions.txt', 'r')
-
-        for line in q_file:
-            print(line)
-            print(self.classifyQuestion(self, line))
-            print('\n')
-
-        q_file.close()
-
-    def entityTest(self):
-        file = open('Resources/assignment1-test-questions.txt', 'r')
-
-        for line in file:
-            e = self.getEntity(self, line)
-            # print(e + '\n')
-
-        file.close()
-        
-# qc =  QuestionClassifier()
-# qc.questionTypeTest()
-# entityTest()

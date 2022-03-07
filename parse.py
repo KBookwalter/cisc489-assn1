@@ -1,25 +1,13 @@
 from classify import QuestionClassifier
 from classify import QuestionType
-from nltk.tokenize import word_tokenize
 from generate_synonyms import get_syns
 import re
 
-# past_rise_words = get_syns(["went_up", "rose", "increased", "jumped", "ascended", "up"])
-# past_fall_words = get_syns(["fell", "dropped", "dipped", "decreased", "down", "loss", "dive", "lower", "off"])
-# past_open_words = get_syns(["opened", "started", "began"])
-# past_close_words = get_syns(["closed", "ended", "finished"])
-
+# Generate verb synonym lists based on common words of each question category
 rise_words = get_syns(["go_up", "rise", "increase", "jump", "ascend", "went_up", "rose", "increased", "jumped", "ascended", "up"])
 fall_words = get_syns(["fall", "drop", "dip", "decrease", "go_down", "fell", "dropped", "dipped", "decreased", "down", "loss", "dive", "lower", "off"])
 open_words = get_syns(["open", "start", "begin", "opened", "started", "began"])
 close_words = get_syns(["close", "end", "finish","closed_down", "closed", "ended", "finished"])
-
-# for word in close_words:
-#     print(word)
-
-# i = 1/0
-
-
 
 qc = QuestionClassifier
 
@@ -28,13 +16,14 @@ qc = QuestionClassifier
 def parse(article: str, question: str) -> list:
     questionInfo = qc.classifyQuestion(qc, question)
     
-    # Get all relevant sentences, if none exist, we know nothing about the entity from the articles
+    # Get all relevant sentences (sentences where entity is mentioned), if none exist, we know nothing about the entity from the articles
     sentences = getSentences(article, questionInfo[1])
     if not sentences:
         return None
 
     result = []
 
+    # Handle different question types
     if(questionInfo[0] == QuestionType.OR):
         result = parseOr(sentences, questionInfo[1])
         if result:
@@ -82,7 +71,7 @@ def parse(article: str, question: str) -> list:
 
 
 # Parses relevant sentences for answers to or-type questions
-# Returns any all sentences that contain answers as well as an indicator of whether the stock rose, fell, or both at differing times
+# Returns any/all sentences that contain answers as well as an indicator of whether the stock rose, fell, or both at differing times
 def parseOr(sentences: str, entityNames: list) -> list:
     matches = []
     answer = 0
@@ -170,8 +159,6 @@ def parseQuant(sentences: str, words: list, entityNames: list, type: QuestionTyp
                 break
     
     if foundSentence:
-        # for m in matches:
-        #     print(m)
         return matches
     else:
         return None
