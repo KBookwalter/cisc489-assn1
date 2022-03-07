@@ -14,11 +14,9 @@ generate_synonyms.py:
 parse.py
     This file does the parsing of the articles.
 
-
 NLP TOOLS USED:
 
 NLTK
-
 
 EXPLANATION OF PROGRAM:
 
@@ -26,5 +24,6 @@ This program takes questions either from the user or a file, classifies the ques
 It then gets all sentences mentioning that entity and parses those sentences for a pattern consistent with a potential answer.
 
 NOTE:
+
 Please install the required packages found in Resources/requirements.txt
 You may also have to download some data associated with NLTK, please follow related command line instructions.
