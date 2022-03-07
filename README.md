@@ -33,6 +33,7 @@ Install regex and nltk libraries
     $pip install nltk
 
 NLTK Downloads
+
     1) Start python interpreter in the command line
         $python
     2) Import nltk
