@@ -1,8 +1,6 @@
 # stock-chatter.py
 
 from sys import argv
-import nltk
-import classify
 from parse import parse
 
 def main():
@@ -11,6 +9,8 @@ def main():
     except IndexError:
         runFromConsole(argv[1])
 
+
+# Runs program with an input file for questions
 def runFromFile(article, filename):
     file = open(filename, 'r')
     for line in file:
@@ -31,6 +31,7 @@ def runFromFile(article, filename):
             print('No information available.\n')
     file.close()
 
+# Runs program with questions coming from console
 def runFromConsole(article):
     userInput = ""
     while True:

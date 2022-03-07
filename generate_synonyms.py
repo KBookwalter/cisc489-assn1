@@ -1,6 +1,7 @@
 from nltk.corpus import wordnet
 
 # Takes a list of words and returns a list of unique synonyms of all words in the list
+# Uses NLTK's wordnet corpus to find synonyms
 def get_syns(words_init):
     all_syns = []
     for word in words_init:
